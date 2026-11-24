@@ -1,17 +1,484 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="styles.css">
-  <title>Vanilla JavaScript App</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QarjyLab | Kazakhstan Financial Education &amp; Economic Analytics</title>
+<meta name="description" content="QarjyLab: interactive tools to understand inflation, savings and the economy of Kazakhstan.">
+<style>
+:root{
+  --bg:#0a1228; --bg2:#0f1b3a; --card:#13214a; --line:#243562;
+  --text:#e8edf8; --muted:#9aa8c7; --accent:#3ee0c2; --gold:#f2c14e; --danger:#ff7a7a;
+  --radius:16px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;line-height:1.55}
+a{color:var(--accent)}
+.wrap{max-width:1040px;margin:0 auto;padding:0 20px}
+header.nav{position:sticky;top:0;z-index:10;background:rgba(10,18,40,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.nav .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-top:12px;padding-bottom:12px;flex-wrap:wrap}
+.logo{font-weight:800;letter-spacing:.5px;font-size:1.2rem;color:var(--text);text-decoration:none}
+.logo span{color:var(--accent)}
+.nav ul{list-style:none;display:flex;gap:18px;margin:0;padding:0;flex-wrap:wrap}
+.nav ul a{color:var(--muted);text-decoration:none;font-size:.92rem}
+.nav ul a:hover{color:var(--text)}
+.hero{padding:72px 0 56px;background:radial-gradient(900px 400px at 80% -10%,rgba(62,224,194,.14),transparent),var(--bg)}
+.eyebrow{color:var(--accent);font-weight:700;letter-spacing:3px;font-size:.8rem}
+h1{font-size:clamp(2.1rem,6vw,3.6rem);line-height:1.1;margin:10px 0 16px}
+.lead{color:var(--muted);font-size:1.1rem;max-width:620px}
+.btns{display:flex;gap:12px;flex-wrap:wrap;margin-top:26px}
+.btn{display:inline-block;padding:12px 22px;border-radius:999px;font-weight:700;text-decoration:none;border:1px solid var(--accent);color:var(--accent);background:transparent;cursor:pointer;font-size:1rem;font-family:inherit}
+.btn.primary{background:var(--accent);color:#06241f}
+.btn:hover{filter:brightness(1.1)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:44px}
+.tile{display:block;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;text-decoration:none;color:var(--text);transition:transform .15s,border-color .15s}
+.tile:hover{transform:translateY(-3px);border-color:var(--accent)}
+.tile .n{color:var(--gold);font-weight:800;font-size:.9rem;letter-spacing:2px}
+.tile h3{margin:6px 0 4px;font-size:1.05rem}
+.tile p{margin:0;color:var(--muted);font-size:.9rem}
+section{padding:60px 0;border-top:1px solid var(--line)}
+section:nth-of-type(even){background:var(--bg2)}
+h2{font-size:1.8rem;margin:0 0 6px}
+.sub{color:var(--muted);margin:0 0 26px;max-width:700px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.card h3{margin:0 0 12px;font-size:1.1rem}
+label{display:block;font-size:.85rem;color:var(--muted);margin:12px 0 4px}
+input[type=number],select{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:#0c1735;color:var(--text);font-size:1rem;font-family:inherit}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.result{margin-top:16px;padding:14px;border-radius:12px;background:#0c1735;border:1px solid var(--line)}
+.result .big{font-size:1.5rem;font-weight:800;color:var(--accent)}
+.result p{margin:6px 0 0;color:var(--muted);font-size:.93rem}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:12px}
+.stat{background:#0c1735;border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.stat b{display:block;font-size:1.15rem;color:var(--text)}
+.stat span{font-size:.78rem;color:var(--muted)}
+svg.chart{width:100%;height:auto;display:block;margin-top:14px}
+.c-grid{stroke:var(--line);stroke-width:1}
+.c-axis{fill:var(--muted);font-size:11px}
+.c-bar{fill:var(--accent)}
+.c-bar.dim{fill:#35507f}
+.c-val{fill:var(--text);font-size:10px;text-anchor:middle}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:.82rem;color:var(--muted);margin-top:8px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+.stack{display:flex;height:26px;border-radius:8px;overflow:hidden;margin-top:12px}
+.stack div{height:100%}
+table{width:100%;border-collapse:collapse;font-size:.92rem}
+th,td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--line)}
+th{color:var(--muted);font-weight:600}
+.note{font-size:.82rem;color:var(--muted);margin-top:10px}
+.tag{display:inline-block;font-size:.72rem;padding:2px 8px;border-radius:999px;border:1px solid var(--gold);color:var(--gold);margin-left:8px;vertical-align:middle}
+.opts{display:grid;gap:10px;margin-top:14px}
+.opt{text-align:left;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:#0c1735;color:var(--text);font-size:1rem;cursor:pointer;font-family:inherit}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt.ok{border-color:var(--accent);background:rgba(62,224,194,.15)}
+.opt.bad{border-color:var(--danger);background:rgba(255,122,122,.12)}
+.progress{height:6px;background:var(--line);border-radius:6px;overflow:hidden;margin-bottom:14px}
+.progress div{height:100%;background:var(--accent);width:0;transition:width .25s}
+.finding{border-left:3px solid var(--gold);padding:4px 0 4px 14px;margin:14px 0}
+footer{padding:36px 0;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}
+@media(max-width:560px){.row2{grid-template-columns:1fr}.hero{padding-top:48px}}
+</style>
 </head>
-
 <body>
-  <main>
-    <h1>Vanilla JavaScript App</h1>
-  </main>
-</body>
 
+<header class="nav">
+  <div class="wrap">
+    <a class="logo" href="#top">Qarjy<span>Lab</span></a>
+    <nav>
+      <ul>
+        <li><a href="#inflation">Inflation</a></li>
+        <li><a href="#calculators">Calculators</a></li>
+        <li><a href="#economy">Economy</a></li>
+        <li><a href="#quiz">Quiz</a></li>
+        <li><a href="#research">Research</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+<div class="hero">
+  <div class="wrap">
+    <div class="eyebrow">KAZAKHSTAN</div>
+    <h1>Understand money.<br>Understand the economy.</h1>
+    <p class="lead">Interactive tools that show how inflation changes the value of your money, how savings grow, and what is happening in Kazakhstan's economy, built on official statistics.</p>
+    <div class="btns">
+      <a class="btn primary" href="#inflation">Try the Inflation Explorer</a>
+      <a class="btn" href="#quiz">Test your knowledge</a>
+    </div>
+    <div class="tiles">
+      <a class="tile" href="#inflation"><div class="n">01</div><h3>Inflation Explorer</h3><p>See how much the tenge lost in buying power.</p></a>
+      <a class="tile" href="#calculators"><div class="n">02</div><h3>Calculators</h3><p>Compound interest and a budget simulator.</p></a>
+      <a class="tile" href="#economy"><div class="n">03</div><h3>Kazakhstan Economy</h3><p>Official inflation data with sources.</p></a>
+      <a class="tile" href="#quiz"><div class="n">04</div><h3>Financial Quiz</h3><p>Eight questions with explanations.</p></a>
+    </div>
+  </div>
+</div>
+
+<!-- INFLATION EXPLORER -->
+<section id="inflation">
+  <div class="wrap">
+    <h2>Inflation Explorer</h2>
+    <p class="sub">Choose two years and an amount. The tool uses Kazakhstan's annual consumer price inflation to show how prices and purchasing power changed.</p>
+    <div class="grid2">
+      <div class="card">
+        <h3>Your question</h3>
+        <div class="row2">
+          <div><label for="inf-start">From year</label><select id="inf-start"></select></div>
+          <div><label for="inf-end">To year</label><select id="inf-end"></select></div>
+        </div>
+        <label for="inf-amount">Amount (₸)</label>
+        <input id="inf-amount" type="number" min="0" step="1000" value="100000">
+        <div class="result">
+          <div class="big" id="inf-big"></div>
+          <p id="inf-text"></p>
+        </div>
+        <div class="stats">
+          <div class="stat"><b id="inf-cum">–</b><span>total price rise</span></div>
+          <div class="stat"><b id="inf-avg">–</b><span>average per year</span></div>
+          <div class="stat"><b id="inf-pp">–</b><span>buying power left</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Annual inflation by year</h3>
+        <svg id="inf-chart" class="chart" viewBox="0 0 720 300" role="img" aria-label="Bar chart of annual inflation in Kazakhstan"></svg>
+        <div class="legend"><span><i style="background:var(--accent)"></i>years in your range</span><span><i style="background:#35507f"></i>other years</span></div>
+        <p class="note">Data: World Bank, consumer price inflation, annual average (see Methodology below).</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CALCULATORS -->
+<section id="calculators">
+  <div class="wrap">
+    <h2>Financial Calculators</h2>
+    <p class="sub">Two small tools to build an intuition for saving and budgeting. Results are illustrations, not financial advice.</p>
+    <div class="grid2">
+      <div class="card">
+        <h3>Compound interest</h3>
+        <div class="row2">
+          <div><label for="ci-p">Starting amount (₸)</label><input id="ci-p" type="number" min="0" value="200000"></div>
+          <div><label for="ci-d">Monthly deposit (₸)</label><input id="ci-d" type="number" min="0" value="30000"></div>
+        </div>
+        <div class="row2">
+          <div><label for="ci-r">Interest per year (%)</label><input id="ci-r" type="number" min="0" step="0.1" value="12"></div>
+          <div><label for="ci-y">Years (1–50)</label><input id="ci-y" type="number" min="1" max="50" value="10"></div>
+        </div>
+        <label for="ci-i">Expected inflation per year (%)</label>
+        <input id="ci-i" type="number" min="0" step="0.1" value="8">
+        <div class="result">
+          <div class="big" id="ci-final"></div>
+          <p id="ci-text"></p>
+        </div>
+        <div class="stats">
+          <div class="stat"><b id="ci-contrib">–</b><span>you put in</span></div>
+          <div class="stat"><b id="ci-interest">–</b><span>interest earned</span></div>
+          <div class="stat"><b id="ci-real">–</b><span>value in today's money</span></div>
+        </div>
+        <svg id="ci-chart" class="chart" viewBox="0 0 720 280" role="img" aria-label="Line chart of savings growth"></svg>
+        <div class="legend"><span><i style="background:var(--accent)"></i>balance with interest</span><span><i style="background:var(--gold)"></i>money you deposited</span></div>
+      </div>
+
+      <div class="card">
+        <h3>Budget simulator</h3>
+        <label for="b-inc">Monthly income (₸)</label>
+        <input id="b-inc" type="number" min="0" step="5000" value="300000">
+        <label for="b-needs">Needs (rent, food, transport): <b id="b-needs-v">50</b>%</label>
+        <input id="b-needs" type="range" min="0" max="100" value="50">
+        <label for="b-wants">Wants (fun, shopping, subscriptions): <b id="b-wants-v">30</b>%</label>
+        <input id="b-wants" type="range" min="0" max="100" value="30">
+        <div class="stack" aria-hidden="true">
+          <div id="s-needs" style="background:#4f8cff"></div>
+          <div id="s-wants" style="background:var(--gold)"></div>
+          <div id="s-save" style="background:var(--accent)"></div>
+        </div>
+        <table style="margin-top:14px">
+          <tr><td><i style="color:#4f8cff">●</i> Needs</td><td id="b-n-amt"></td></tr>
+          <tr><td><i style="color:var(--gold)">●</i> Wants</td><td id="b-w-amt"></td></tr>
+          <tr><td><i style="color:var(--accent)">●</i> Savings (<span id="b-s-pct"></span>%)</td><td id="b-s-amt"></td></tr>
+          <tr><td><b>Saved in 1 year</b></td><td><b id="b-year"></b></td></tr>
+        </table>
+        <p class="note">The 50/30/20 split is a popular rule of thumb, not an official standard. Real budgets depend on your situation. Savings is whatever is left after needs and wants.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ECONOMY -->
+<section id="economy">
+  <div class="wrap">
+    <h2>Kazakhstan Economy</h2>
+    <p class="sub">Key inflation figures from official and international sources. Every number here links back to where it came from.</p>
+    <div class="grid2">
+      <div class="card">
+        <h3>Official year-end inflation (Dec to Dec)</h3>
+        <table>
+          <thead><tr><th>Year</th><th>Inflation</th></tr></thead>
+          <tbody id="off-table"></tbody>
+        </table>
+        <p class="note">Source: Bureau of National Statistics of Kazakhstan (stat.gov.kz). Prices in December compared with December of the previous year.</p>
+      </div>
+      <div class="card">
+        <h3>What got more expensive?</h3>
+        <table>
+          <thead><tr><th>Category</th><th>2023</th><th>2024</th><th>2025</th></tr></thead>
+          <tbody>
+            <tr><td>Food</td><td>8.5%</td><td>5.5%</td><td>13.5%</td></tr>
+            <tr><td>Non-food goods</td><td>9.1%</td><td>8.3%</td><td>11.1%</td></tr>
+            <tr><td>Paid services</td><td>12.4%</td><td>13.3%</td><td>12.0%</td></tr>
+            <tr><td><b>All items</b></td><td><b>9.8%</b></td><td><b>8.6%</b></td><td><b>12.3%</b></td></tr>
+          </tbody>
+        </table>
+        <p class="note">Source: Bureau of National Statistics, annual inflation by group (Dec to Dec).</p>
+      </div>
+      <div class="card">
+        <h3>The tenge: a few verified points</h3>
+        <table>
+          <tbody>
+            <tr><td>August 2015</td><td>Free-floating exchange rate introduced</td></tr>
+            <tr><td>2015 average</td><td>221.73 ₸ per USD</td></tr>
+            <tr><td>31 Dec 2023</td><td>454.56 ₸ per USD</td></tr>
+            <tr><td>31 Dec 2024</td><td>521.81 ₸ per USD</td></tr>
+          </tbody>
+        </table>
+        <p class="note">Sources: National Bank of Kazakhstan (nationalbank.kz) rates as reported by Kazinform and BCC Invest. Check nationalbank.kz for the current official rate.</p>
+      </div>
+      <div class="card">
+        <h3>Methodology</h3>
+        <p class="note" style="margin-top:0;font-size:.9rem">The Inflation Explorer uses World Bank data (annual average consumer prices, 2010–2024). It compounds each year's rate to estimate how the price level changed between two years. The official table above uses December-to-December changes, so the two series differ slightly (for example, 2022 is 15.0% average-year but 20.3% Dec to Dec). Both are correct; they measure different things. Compounding annual rates is an approximation of a full price index.</p>
+      </div>
+    </div>
+    <p class="note">Sources: <a href="https://stat.gov.kz/en/industries/economy/prices/" target="_blank" rel="noopener">Bureau of National Statistics</a> · <a href="https://fred.stlouisfed.org/series/FPCPITOTLZGKAZ" target="_blank" rel="noopener">World Bank via FRED</a> · <a href="https://nationalbank.kz/en" target="_blank" rel="noopener">National Bank of Kazakhstan</a></p>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section id="quiz">
+  <div class="wrap">
+    <h2>Financial Literacy Quiz</h2>
+    <p class="sub">Eight questions. After each answer you get a short explanation.</p>
+    <div class="card" style="max-width:720px">
+      <div class="progress"><div id="q-prog"></div></div>
+      <div id="q-box"></div>
+    </div>
+  </div>
+</section>
+
+<!-- RESEARCH -->
+<section id="research">
+  <div class="wrap">
+    <h2>Research Corner</h2>
+    <p class="sub">Findings calculated directly from the data on this site.</p>
+    <div class="card">
+      <h3>Question: how much have everyday prices risen in recent years?</h3>
+      <div class="finding" id="rf1"></div>
+      <div class="finding" id="rf2"></div>
+      <div class="finding" id="rf3"></div>
+      <p class="note">Method: compounding annual inflation rates from the sources above. These are national averages; your own basket of goods and your city can give different results.</p>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <b>QarjyLab</b> · an educational project about money and the economy of Kazakhstan.<br>
+    For learning only, not financial advice. Data may be revised by the sources, so check the links for the latest figures.
+  </div>
+</footer>
+
+<script>
+(function(){
+'use strict';
+
+/* ---------- DATA ---------- */
+// World Bank, consumer price inflation, annual average, %
+var WB = {2010:7.40,2011:8.45,2012:5.20,2013:5.94,2014:6.85,2015:6.68,2016:14.36,2017:7.44,2018:6.16,2019:5.33,2020:6.72,2021:8.04,2022:15.03,2023:14.72,2024:8.84};
+// Bureau of National Statistics, Dec to Dec, %
+var OFFICIAL = {2021:8.4,2022:20.3,2023:9.8,2024:8.6,2025:12.3};
+
+/* ---------- HELPERS ---------- */
+function $(id){return document.getElementById(id);}
+function num(id){var v=parseFloat($(id).value);return isFinite(v)?v:0;}
+function kzt(n){return Math.round(n).toLocaleString('en-US')+' ₸';}
+function pct(n,d){return n.toFixed(d===undefined?1:d)+'%';}
+function compact(n){
+  if(n>=1e9)return (n/1e9).toFixed(1).replace(/\.0$/,'')+'B';
+  if(n>=1e6)return (n/1e6).toFixed(1).replace(/\.0$/,'')+'M';
+  if(n>=1e3)return Math.round(n/1e3)+'k';
+  return String(Math.round(n));
+}
+function niceMax(v){
+  var steps=[5,10,20,50,100,200,500,1000,2000,5000,10000,20000,50000,100000,200000,500000,1e6,2e6,5e6,1e7,2e7,5e7,1e8,2e8,5e8,1e9,2e9,5e9,1e10];
+  for(var i=0;i<steps.length;i++){if(steps[i]>=v)return steps[i];}
+  return v;
+}
+
+/* ---------- CHARTS (plain SVG, no libraries) ---------- */
+function barChart(svg,labels,values,isOn,suffix){
+  var W=720,H=300,L=40,R=10,T=18,B=28;
+  var max=niceMax(Math.max.apply(null,values)*1.1);
+  var iw=W-L-R,ih=H-T-B,bw=iw/values.length;
+  var out='';
+  for(var g=0;g<=4;g++){
+    var gy=T+ih-(ih*g/4);
+    out+='<line class="c-grid" x1="'+L+'" x2="'+(W-R)+'" y1="'+gy+'" y2="'+gy+'"/>';
+    out+='<text class="c-axis" x="'+(L-6)+'" y="'+(gy+4)+'" text-anchor="end">'+(max*g/4)+suffix+'</text>';
+  }
+  for(var i=0;i<values.length;i++){
+    var h=ih*values[i]/max,x=L+i*bw+bw*0.15,y=T+ih-h;
+    out+='<rect class="c-bar'+(isOn(labels[i])?'':' dim')+'" x="'+x+'" y="'+y+'" width="'+(bw*0.7)+'" height="'+h+'" rx="3"><title>'+labels[i]+': '+values[i].toFixed(1)+suffix+'</title></rect>';
+    out+='<text class="c-val" x="'+(x+bw*0.35)+'" y="'+(y-4)+'">'+values[i].toFixed(1)+'</text>';
+    out+='<text class="c-axis" x="'+(x+bw*0.35)+'" y="'+(H-10)+'" text-anchor="middle">'+String(labels[i]).slice(2)+'</text>';
+  }
+  svg.innerHTML=out;
+}
+function lineChart(svg,labels,series){
+  var W=720,H=280,L=52,R=14,T=14,B=28;
+  var all=[];series.forEach(function(s){all=all.concat(s.values);});
+  var max=niceMax(Math.max.apply(null,all)*1.05);
+  var iw=W-L-R,ih=H-T-B,n=labels.length-1||1;
+  var out='';
+  for(var g=0;g<=4;g++){
+    var gy=T+ih-(ih*g/4);
+    out+='<line class="c-grid" x1="'+L+'" x2="'+(W-R)+'" y1="'+gy+'" y2="'+gy+'"/>';
+    out+='<text class="c-axis" x="'+(L-6)+'" y="'+(gy+4)+'" text-anchor="end">'+compact(max*g/4)+'</text>';
+  }
+  var step=Math.ceil(labels.length/8);
+  labels.forEach(function(lb,i){
+    if(i%step===0||i===labels.length-1){
+      out+='<text class="c-axis" x="'+(L+iw*i/n)+'" y="'+(H-8)+'" text-anchor="middle">'+lb+'</text>';
+    }
+  });
+  series.forEach(function(s){
+    var pts=s.values.map(function(v,i){return (L+iw*i/n).toFixed(1)+','+(T+ih-ih*v/max).toFixed(1);}).join(' ');
+    out+='<polyline fill="none" stroke="'+s.color+'" stroke-width="2.5" stroke-linejoin="round" points="'+pts+'"/>';
+  });
+  svg.innerHTML=out;
+}
+
+/* ---------- INFLATION EXPLORER ---------- */
+var years=Object.keys(WB).map(Number).sort(function(a,b){return a-b;});
+var sSel=$('inf-start'),eSel=$('inf-end');
+years.forEach(function(y){
+  sSel.add(new Option(y,y));eSel.add(new Option(y,y));
+});
+sSel.value=2015;eSel.value=years[years.length-1];
+
+function updateInflation(){
+  var s=+sSel.value,e=+eSel.value,amt=num('inf-amount');
+  if(e<=s){e=Math.min(s+1,years[years.length-1]);if(e<=s){s=e-1;sSel.value=s;}eSel.value=e;}
+  var f=1;
+  for(var y=s+1;y<=e;y++){f*=1+WB[y]/100;}
+  var n=e-s;
+  $('inf-big').textContent=kzt(amt*f);
+  $('inf-text').textContent=kzt(amt)+' of goods in '+s+' would cost about '+kzt(amt*f)+' in '+e+'. Put differently, '+kzt(amt)+' in '+e+' buys what only '+kzt(amt/f)+' bought in '+s+'.';
+  $('inf-cum').textContent=pct((f-1)*100,0);
+  $('inf-avg').textContent=pct((Math.pow(f,1/n)-1)*100);
+  $('inf-pp').textContent=pct(100/f,0);
+  barChart($('inf-chart'),years,years.map(function(y){return WB[y];}),function(y){return y>s&&y<=e;},'%');
+}
+['inf-start','inf-end','inf-amount'].forEach(function(id){$(id).addEventListener('input',updateInflation);});
+
+/* ---------- COMPOUND INTEREST ---------- */
+function updateCompound(){
+  var P=Math.max(0,num('ci-p')),D=Math.max(0,num('ci-d')),r=Math.max(0,num('ci-r')),
+      Y=Math.min(50,Math.max(1,Math.round(num('ci-y')))),inf=Math.max(0,num('ci-i'));
+  var mr=r/100/12,bal=P,labels=[0],bals=[P],contr=[P];
+  for(var m=1;m<=Y*12;m++){
+    bal=bal*(1+mr)+D;
+    if(m%12===0){labels.push(m/12);bals.push(bal);contr.push(P+D*m);}
+  }
+  var put=P+D*Y*12,real=bal/Math.pow(1+inf/100,Y);
+  $('ci-final').textContent=kzt(bal);
+  $('ci-text').textContent='After '+Y+' year'+(Y>1?'s':'')+' at '+r+'% per year (interest added monthly).';
+  $('ci-contrib').textContent=kzt(put);
+  $('ci-interest').textContent=kzt(bal-put);
+  $('ci-real').textContent=kzt(real);
+  lineChart($('ci-chart'),labels,[{values:bals,color:'#3ee0c2'},{values:contr,color:'#f2c14e'}]);
+}
+['ci-p','ci-d','ci-r','ci-y','ci-i'].forEach(function(id){$(id).addEventListener('input',updateCompound);});
+
+/* ---------- BUDGET ---------- */
+function updateBudget(){
+  var inc=Math.max(0,num('b-inc')),nd=+$('b-needs').value,wn=+$('b-wants').value;
+  if(nd+wn>100){wn=100-nd;$('b-wants').value=wn;}
+  var sv=100-nd-wn;
+  $('b-needs-v').textContent=nd;$('b-wants-v').textContent=wn;$('b-s-pct').textContent=sv;
+  $('s-needs').style.width=nd+'%';$('s-wants').style.width=wn+'%';$('s-save').style.width=sv+'%';
+  $('b-n-amt').textContent=kzt(inc*nd/100);
+  $('b-w-amt').textContent=kzt(inc*wn/100);
+  $('b-s-amt').textContent=kzt(inc*sv/100);
+  $('b-year').textContent=kzt(inc*sv/100*12);
+}
+['b-inc','b-needs','b-wants'].forEach(function(id){$(id).addEventListener('input',updateBudget);});
+
+/* ---------- ECONOMY TABLE ---------- */
+$('off-table').innerHTML=Object.keys(OFFICIAL).map(function(y){
+  return '<tr><td>'+y+'</td><td>'+OFFICIAL[y].toFixed(1)+'%</td></tr>';
+}).join('');
+
+/* ---------- RESEARCH FINDINGS (computed) ---------- */
+(function(){
+  var f=1,y;
+  for(y=2016;y<=2024;y++){f*=1+WB[y]/100;}
+  $('rf1').innerHTML='<b>2015 to 2024:</b> compounding World Bank annual inflation, the price level rose by about <b>'+Math.round((f-1)*100)+'%</b>. A basket that cost 100,000 ₸ in 2015 cost roughly <b>'+kzt(100000*f)+'</b> in 2024.';
+  var g=1;
+  for(y=2021;y<=2025;y++){g*=1+OFFICIAL[y]/100;}
+  $('rf2').innerHTML='<b>December 2020 to December 2025:</b> compounding the official year-end figures, consumer prices rose by about <b>'+Math.round((g-1)*100)+'%</b> in five years.';
+  $('rf3').innerHTML='<b>Services vs food:</b> in 2024 paid services rose 13.3% while food rose 5.5%. In 2025 this flipped: food rose 13.5% and services 12.0%. The same year can feel very different depending on what you spend your money on.';
+})();
+
+/* ---------- QUIZ ---------- */
+var QUIZ=[
+ {q:'Inflation is 10% per year and your savings account pays 6%. What happens to your purchasing power?',o:['It grows','It stays the same','It shrinks','It cannot be known'],a:2,e:'Prices rise faster than your savings grow, so each tenge buys less. The real return is negative (about -3.6%).'},
+ {q:'What is compound interest?',o:['Interest paid only on the original amount','Interest paid on the original amount and on interest already earned','A fee charged by banks','Interest that is fixed by the government'],a:1,e:'Compounding means interest earns interest. That is why starting early matters so much.'},
+ {q:'The "Rule of 72" says that at 8% per year, money roughly doubles in about…',o:['5 years','9 years','15 years','20 years'],a:1,e:'72 divided by the rate gives the approximate years to double: 72 ÷ 8 = 9.'},
+ {q:'Since when has the tenge had a free-floating exchange rate?',o:['1993','2009','August 2015','2022'],a:2,e:'In August 2015 Kazakhstan moved to inflation targeting with a free-floating exchange rate.'},
+ {q:'Which institution sets the base rate in Kazakhstan?',o:['Ministry of Finance','National Bank of Kazakhstan','Any commercial bank','Parliament'],a:1,e:'The National Bank of Kazakhstan sets the base rate as its main monetary policy tool.'},
+ {q:'How big should an emergency fund usually be?',o:['One week of expenses','3 to 6 months of essential expenses','Exactly one year of salary','It is not needed'],a:1,e:'A common guideline is 3 to 6 months of essential costs, kept somewhere safe and easy to access.'},
+ {q:'What does "real value" of money mean?',o:['Value after adjusting for inflation','Value in a foreign currency','Value shown on the banknote','Value after paying taxes'],a:0,e:'Nominal value is the number on the banknote. Real value adjusts it for rising prices.'},
+ {q:'What is the main difference between a debit card and a credit card?',o:['Debit cards are free, credit cards are not','Debit spends your own money, credit borrows from the bank','Credit cards cannot be used online','There is no difference'],a:1,e:'A debit card uses money you already have. A credit card is a loan that must be repaid, often with interest.'}
+];
+var qi=0,score=0;
+function renderQ(){
+  var box=$('q-box');
+  $('q-prog').style.width=(qi/QUIZ.length*100)+'%';
+  if(qi>=QUIZ.length){
+    var msg=score>=7?'Excellent work!':score>=5?'Good job. A few topics to revisit.':'A good start. Try the tools above and retake the quiz.';
+    box.innerHTML='<h3>Your score: '+score+' / '+QUIZ.length+'</h3><p>'+msg+'</p><button class="btn primary" id="q-again">Try again</button>';
+    $('q-again').onclick=function(){qi=0;score=0;renderQ();};
+    return;
+  }
+  var item=QUIZ[qi];
+  box.innerHTML='<div class="note" style="margin:0 0 6px">Question '+(qi+1)+' of '+QUIZ.length+'</div><h3 style="margin:0">'+item.q+'</h3><div class="opts" id="q-opts"></div><div id="q-exp" class="note" style="font-size:.95rem"></div><div id="q-next"></div>';
+  var opts=$('q-opts');
+  item.o.forEach(function(text,i){
+    var b=document.createElement('button');
+    b.className='opt';b.type='button';b.textContent=text;
+    b.onclick=function(){
+      var all=opts.querySelectorAll('button');
+      for(var k=0;k<all.length;k++){all[k].disabled=true;}
+      if(i===item.a){score++;b.classList.add('ok');}
+      else{b.classList.add('bad');all[item.a].classList.add('ok');}
+      $('q-exp').textContent=(i===item.a?'Correct. ':'Not quite. ')+item.e;
+      var nb=document.createElement('button');
+      nb.className='btn primary';nb.type='button';nb.style.marginTop='14px';
+      nb.textContent=qi===QUIZ.length-1?'See result':'Next question';
+      nb.onclick=function(){qi++;renderQ();};
+      $('q-next').appendChild(nb);
+    };
+    opts.appendChild(b);
+  });
+}
+
+/* ---------- INIT ---------- */
+updateInflation();updateCompound();updateBudget();renderQ();
+})();
+</script>
+</body>
 </html>
